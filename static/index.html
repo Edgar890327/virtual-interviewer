@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Interview App</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+
+      <!-- ═══════ AUTH SCREEN (Login + Register tabs) ═══════ -->
+      <section id="auth-screen" class="card">
+        <h1>AI Interview App</h1>
+
+        <!-- Tabs -->
+        <div class="tab-row">
+          <button id="tab-login" class="tab active">Sign in</button>
+          <button id="tab-register" class="tab">Create account</button>
+        </div>
+
+        <!-- Login form -->
+        <div id="login-form">
+          <label for="login-user">Username</label>
+          <input id="login-user" type="text" autocomplete="username" placeholder="your_username" />
+          <label for="login-pass">Password</label>
+          <input id="login-pass" type="password" autocomplete="current-password" placeholder="••••••••" />
+          <button id="login-btn">Sign in</button>
+          <p class="hint">Don't have an account? <a href="#" id="goto-register">Create one</a></p>
+        </div>
+
+        <!-- Register form -->
+        <div id="register-form" class="hidden">
+          <label for="reg-user">Username</label>
+          <input id="reg-user" type="text" autocomplete="username" placeholder="choose_a_username" />
+          <label for="reg-email">Email</label>
+          <input id="reg-email" type="email" autocomplete="email" placeholder="you@example.com" />
+          <label for="reg-pass">Password</label>
+          <input id="reg-pass" type="password" autocomplete="new-password" placeholder="at least 8 characters" />
+          <label for="reg-pass2">Confirm password</label>
+          <input id="reg-pass2" type="password" autocomplete="new-password" placeholder="repeat password" />
+          <button id="register-btn">Create account</button>
+          <p class="hint">Already have an account? <a href="#" id="goto-login">Sign in</a></p>
+        </div>
+
+        <!-- Toast / error message -->
+        <div id="auth-error" class="alert hidden"></div>
+      </section>
+
+      <!-- ═══════ MODEL ALERT ═══════ -->
+      <div id="model-alert" class="alert warning hidden">
+        ⚠️ No AI model detected in Ollama.
+        <select id="model-select-alert">
+          <option value="llama3.1:8b">llama3.1:8b (recommended)</option>
+          <option value="llama2:13b">llama2:13b</option>
+          <option value="phi:latest">phi:latest</option>
+          <option value="tinyllama:latest">tinyllama:latest</option>
+        </select>
+        <button id="download-model-btn" class="warning-btn">Download selected model</button>
+        <span id="download-status"></span>
+      </div>
+
+      <!-- ═══════ SETUP SCREEN ═══════ -->
+      <section id="setup-screen" class="card hidden">
+        <div class="row">
+          <h1>AI Interview App</h1>
+          <button id="logout-btn" class="secondary small">Logout</button>
+        </div>
+        <p>Configure candidate, role, language, and interview duration.</p>
+
+        <label for="candidate">Candidate name</label>
+        <input id="candidate" type="text" maxlength="120" />
+
+        <label for="candidate-email">Candidate email (optional)</label>
+        <input id="candidate-email" type="email" maxlength="200" />
+
+        <label for="position">Position</label>
+        <input id="position" type="text" maxlength="120" />
+
+        <label for="position-desc">Position description / requirements (optional)</label>
+        <textarea id="position-desc" rows="4" maxlength="2000"
+          placeholder="Paste the job description or key requirements. The AI will use this to ask more relevant questions."></textarea>
+
+        <label for="language">Language</label>
+        <select id="language">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+        </select>
+
+        <label for="duration">Duration (minutes)</label>
+        <select id="duration">
+          <option value="10">10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+          <option value="30">30</option>
+          <option value="45">45</option>
+        </select>
+
+        <label for="model-select">AI Model</label>
+        <select id="model-select">
+          <option value="">Loading models…</option>
+        </select>
+
+        <button id="start-btn">Start interview</button>
+        <button id="show-history-btn" class="secondary">View history</button>
+      </section>
+
+      <!-- ═══════ INTERVIEW SCREEN ═══════ -->
+      <section id="interview-screen" class="card hidden">
+        <div class="row">
+          <h2 id="header-title"></h2>
+          <span id="timer"></span>
+        </div>
+        <div id="question" class="bubble ai"></div>
+        <div class="actions">
+          <button id="record-btn">Start recording</button>
+          <button id="stop-btn" disabled>Stop recording</button>
+          <button id="finish-btn" class="danger">Finish interview</button>
+        </div>
+        <label for="text-answer">Or write an answer</label>
+        <textarea id="text-answer" rows="3"></textarea>
+        <button id="send-text-btn">Send written answer</button>
+        <div id="conversation"></div>
+      </section>
+
+      <!-- ═══════ FEEDBACK SCREEN ═══════ -->
+      <section id="feedback-screen" class="card hidden">
+        <h2>Interview feedback</h2>
+        <article id="feedback-content"></article>
+        <button id="new-interview-btn">New interview</button>
+        <button id="open-history-from-feedback" class="secondary">View history</button>
+      </section>
+
+      <!-- ═══════ HISTORY SCREEN ═══════ -->
+      <section id="history-screen" class="card hidden">
+        <h2>Session history</h2>
+        <div id="history-list"></div>
+        <div class="actions">
+          <button id="download-json-btn" class="secondary" disabled>Download JSON</button>
+          <button id="download-pdf-btn" class="secondary" disabled>Download PDF</button>
+        </div>
+        <article id="history-detail"></article>
+        <button id="back-btn">Back</button>
+      </section>
+
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

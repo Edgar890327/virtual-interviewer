@@ -1,0 +1,12 @@
+services:
+  ollama:
+    gpus: all
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu
+    gpus: all
+    environment:
+      WHISPER_DEVICE: ${GPU_WHISPER_DEVICE:-cuda}
+      WHISPER_COMPUTE_TYPE: ${GPU_WHISPER_COMPUTE_TYPE:-float16}

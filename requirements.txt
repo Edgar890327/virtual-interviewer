@@ -1,0 +1,11 @@
+fastapi==0.116.1
+uvicorn==0.35.0
+python-multipart==0.0.20
+httpx==0.28.1
+faster-whisper==1.1.1
+reportlab==4.4.3
+requests==2.32.3
+bcrypt==4.1.2
+PyJWT==2.13.0
+pydantic[email]==2.5.0
+psycopg2-binary==2.9.10

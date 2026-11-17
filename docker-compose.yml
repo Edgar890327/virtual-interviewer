@@ -1,0 +1,96 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: interview-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-interviewdb}
+      POSTGRES_USER: ${POSTGRES_USER:-interview}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-interview_secret}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-interview} -d ${POSTGRES_DB:-interviewdb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ollama:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.ollama
+  #   container_name: interview-ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "ollama list >/dev/null 2>&1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 12
+  #     start_period: 20s
+
+  # ollama-init:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.ollama
+  #   depends_on:
+  #     ollama:
+  #       condition: service_healthy
+  #   environment:
+  #     OLLAMA_HOST: http://ollama:11434
+  #     OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
+  #   command:
+  #     [
+  #       "sh",
+  #       "-c",
+  #       "until ollama list >/dev/null 2>&1; do echo 'Waiting for ollama...'; sleep 2; done; ollama pull $$OLLAMA_MODEL",
+  #     ]
+  #   profiles:
+  #     - init
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: interview-app
+    depends_on:
+      # ollama:
+      #   condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      OLLAMA_BASE_URL: https://ollama.com
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
+      WHISPER_MODEL_SIZE: ${WHISPER_MODEL_SIZE:-small}
+      WHISPER_DEVICE: ${WHISPER_DEVICE:-cpu}
+      WHISPER_COMPUTE_TYPE: ${WHISPER_COMPUTE_TYPE:-int8}
+      SESSIONS_DIR: /app/data/sessions
+      DATABASE_URL: postgresql://${POSTGRES_USER:-interview}:${POSTGRES_PASSWORD:-interview_secret}@postgres:5432/${POSTGRES_DB:-interviewdb}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-this-secret-in-production}
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - sessions_data:/app/data/sessions
+      - whisper_cache:/root/.cache/huggingface
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/', timeout=3)\""]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  whisper_cache:
+  # ollama_data:
+  sessions_data:
+  postgres_data:
